@@ -5,15 +5,43 @@ case $1 in
 	s6-rc list $2 > /tmp/old
 	s6-rc-bundle delete $2
 	s6-rc-bundle add $2 $(cat /tmp/old) $3 ;;
+    
     del)
 	s6-rc list $2 > /tmp/old
 	s6-rc-bundle delete $2
 	sed -i "/$3/d" /tmp/old
 	s6-rc-bundle add $2 $(cat /tmp/old) ;;
+    
     list)
 	s6-rc list $2 ;;
+    
     backup)
 	echo $(sudo s6-rc list $2) > $(pwd)/$2.backup ;;
-    *)
-	echo "Usage:" ;;
+    
+    -h)
+	case $2 in
+	    add)
+		echo "Add sshd to default bundle"
+	        echo "s6-rc-bundle-update add default sshd";;
+
+	    del)
+		echo "Remove sshd from default bundle"
+		echo "s6-rc-bundle-update del default sshd";;
+
+	    list)
+		echo "List services in default bundle"
+		echo "s6-rc-bundle-update list default";;
+
+	    backup)
+		echo "Create a backup of default bundle"
+		echo "s6-rc-bundle-update backup default"
+		echo "This will place name of bundle.backup in current directory" ;;
+	esac
+	;;
+    
+     *)
+	echo "Options: add del list backup"
+	echo "You can do '-h option' for option example"
+	echo "DO create a backup first of the bundle you are changing first"
+	echo "TIP: You can add/del more than one service if you surround the service names in quotes";;
 esac
