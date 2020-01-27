@@ -10,5 +10,10 @@ case $1 in
 	s6-rc-bundle delete $2
 	sed -i "/$3/d" /tmp/old
 	s6-rc-bundle add $2 $(cat /tmp/old) ;;
-    list) s6-rc list $2 ;;
+    list)
+	s6-rc list $2 ;;
+    backup)
+	echo $(sudo s6-rc list $2) > $(pwd)/$2.backup ;;
+    *)
+	echo "Usage:" ;;
 esac
