@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+
+case $1 in
+    add)
+	s6-rc list $2 > /tmp/old
+	s6-rc-bundle delete $2
+	s6-rc-bundle add $2 $(cat /tmp/old) $3 ;;
+    del)
+	s6-rc list $2 > /tmp/old
+	s6-rc-bundle delete $2
+	sed -i "/$3/d" /tmp/old
+	s6-rc-bundle add $2 $(cat /tmp/old) ;;
+    list) s6-rc list $2 ;;
+esac
