@@ -45,3 +45,8 @@ case $1 in
 	echo "DO create a backup first of the bundle you are changing first"
 	echo "TIP: You can add/del more than one service if you surround the service names in quotes";;
 esac
+
+# Initial backup
+if [ -n "$2.backup" ]; then
+	echo $(sudo s6-rc list $2) > $(pwd)/$2.backup
+fi
