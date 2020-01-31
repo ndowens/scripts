@@ -1,52 +1,52 @@
 #!/usr/bin/env bash
 
+if [ ! -f /etc/s6/${2}.backup ]; then
+    s6-rc list ${2} > /etc/s6/${2}.backup
+fi
+
 case $1 in
     add)
-	s6-rc list $2 > /tmp/old
+	s6-rc list $2 > /tmp/s6_old
 	s6-rc-bundle delete $2
-	s6-rc-bundle add $2 $(cat /tmp/old) $3 ;;
-    
-    del)
-	s6-rc list $2 > /tmp/old
+	s6-rc-bundle add $2 $(cat /tmp/s6_old) $3
+
+	if [[ "$?" -ne 1 ]]; then
+		rm /etc/s6/*.backup
+	fi ;;
+
+    delete)
+	s6-rc list $2 > /tmp/s6_old
 	s6-rc-bundle delete $2
-	sed -i "/$3/d" /tmp/old
-	s6-rc-bundle add $2 $(cat /tmp/old) ;;
+	sed -i "/$3/d" /tmp/s6_old
+	s6-rc-bundle add $2 $(cat /tmp/s6_old)
+
+	if [[ "$?" -ne 1 ]]; then
+		rm /etc/s6/*.backup
+	fi ;;
     
     list)
-	s6-rc list $2 ;;
-    
-    backup)
-	echo $(sudo s6-rc list $2) > $(pwd)/$2.backup ;;
-    
+	$(echo s6-rc list $2) ;;
+        
     -h)
 	case $2 in
 	    add)
 		echo "Add sshd to default bundle"
 	        echo "s6-rc-bundle-update add default sshd";;
 
-	    del)
+	    delete)
 		echo "Remove sshd from default bundle"
-		echo "s6-rc-bundle-update del default sshd";;
+		echo "s6-rc-bundle-update delete default sshd";;
 
 	    list)
 		echo "List services in default bundle"
 		echo "s6-rc-bundle-update list default";;
 
-	    backup)
-		echo "Create a backup of default bundle"
-		echo "s6-rc-bundle-update backup default"
-		echo "This will place name of bundle.backup in current directory" ;;
+	    *)
+		echo "You can do '-h option' for option example"
+		echo "TIP: You can add/delete more than one service if you surround the service names in quotes";;
 	esac
 	;;
     
-     *)
-	echo "Options: add del list backup"
-	echo "You can do '-h option' for option example"
-	echo "DO create a backup first of the bundle you are changing first"
-	echo "TIP: You can add/del more than one service if you surround the service names in quotes";;
+    *)
+		echo "Options: add delete list backup";;
 esac
-
-# Initial backup
-if [ -n "$2.backup" ]; then
-	echo $(sudo s6-rc list $2) > $(pwd)/$2.backup
-fi
